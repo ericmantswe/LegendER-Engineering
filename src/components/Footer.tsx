@@ -161,6 +161,11 @@ export const Footer: React.FC<FooterProps> = ({ onContact }) => {
                 e.currentTarget.style.borderColor = 'rgba(37, 211, 102, 0.4)';
               }}
             >
+              <img
+                src="/whatsapp.png"
+                alt="WhatsApp"
+                style={{ width: 15, height: 15, objectFit: 'contain', display: 'block' }}
+              />
               WhatsApp
             </a>
           </div>

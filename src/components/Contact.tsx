@@ -411,14 +411,22 @@ export const Contact: React.FC<ContactProps> = ({ prefilledService }) => {
                   letterSpacing: '0.1em',
                   textTransform: 'uppercase',
                   color: '#fff',
-                  padding: '16px 32px',
+                  padding: '15px 30px',
                   alignSelf: 'flex-start',
                   transition: 'opacity 0.2s',
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: 12,
                 }}
                 onMouseEnter={e => (e.currentTarget.style.opacity = '0.8')}
                 onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
               >
-                Send Enquiry →
+                <img
+                  src="/whatsapp.png"
+                  alt="WhatsApp"
+                  style={{ width: 22, height: 22, objectFit: 'contain', display: 'block' }}
+                />
+                Send Enquiry via WhatsApp
               </button>
             </form>
           )}
