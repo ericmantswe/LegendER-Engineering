@@ -7,9 +7,11 @@ interface HeroProps {
 }
 
 export const Hero: React.FC<HeroProps> = ({ onContact, onServices }) => {
+  const heroRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [muted, setMuted] = useState(true);
+  const [muted, setMuted] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const userMutedRef = useRef(false);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth <= 680);
@@ -18,15 +20,119 @@ export const Hero: React.FC<HeroProps> = ({ onContact, onServices }) => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const updateAudioFade = () => {
+      if (userMutedRef.current) {
+        if (!video.muted) video.muted = true;
+        setMuted(true);
+        return;
+      }
+
+      const hero = heroRef.current;
+      if (!hero) return;
+
+      const heroHeight = hero.offsetHeight || window.innerHeight * 1.6;
+      const scrollY = window.scrollY || window.pageYOffset;
+
+      // Start fading as the user scrolls down through the video
+      const fadeStart = window.innerHeight * 0.25;
+      // Complete fade-out to 0 when user reaches the end of the hero section
+      const fadeEnd = heroHeight - 40;
+
+      if (scrollY <= fadeStart) {
+        video.volume = 1;
+        video.muted = false;
+        setMuted(false);
+      } else if (scrollY >= fadeEnd) {
+        video.volume = 0;
+        video.muted = true;
+        setMuted(true);
+      } else {
+        // Smooth cosine acoustic fade from 1 down to 0
+        const progress = (scrollY - fadeStart) / (fadeEnd - fadeStart);
+        const vol = Math.max(0, Math.min(1, 0.5 * (1 + Math.cos(progress * Math.PI))));
+        video.volume = Math.round(vol * 100) / 100;
+        if (vol > 0.02) {
+          video.muted = false;
+          setMuted(false);
+        } else {
+          video.muted = true;
+          setMuted(true);
+        }
+      }
+    };
+
+    // Attempt sound playback immediately
+    video.muted = false;
+    video.volume = 1;
+    const playPromise = video.play();
+
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => {
+          setMuted(false);
+          updateAudioFade();
+        })
+        .catch(() => {
+          // If browser policy requires user interaction before unmuting,
+          // play muted initially so visual presentation is uninterrupted:
+          video.muted = true;
+          setMuted(true);
+          video.play().catch(() => {});
+
+          // Immediately unmute upon the very first user interaction (scroll, click, tap)
+          const enableAudio = () => {
+            if (!userMutedRef.current && videoRef.current) {
+              videoRef.current.muted = false;
+              updateAudioFade();
+            }
+            window.removeEventListener('click', enableAudio);
+            window.removeEventListener('touchstart', enableAudio);
+            window.removeEventListener('scroll', enableAudio);
+            window.removeEventListener('keydown', enableAudio);
+          };
+
+          window.addEventListener('click', enableAudio, { once: true });
+          window.addEventListener('touchstart', enableAudio, { once: true });
+          window.addEventListener('scroll', enableAudio, { once: true });
+          window.addEventListener('keydown', enableAudio, { once: true });
+        });
+    }
+
+    window.addEventListener('scroll', updateAudioFade, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', updateAudioFade);
+    };
+  }, []);
+
   const toggleMute = () => {
     if (videoRef.current) {
-      videoRef.current.muted = !videoRef.current.muted;
-      setMuted(videoRef.current.muted);
+      if (!muted) {
+        videoRef.current.muted = true;
+        userMutedRef.current = true;
+        setMuted(true);
+      } else {
+        userMutedRef.current = false;
+        videoRef.current.muted = false;
+        const hero = heroRef.current;
+        const heroHeight = hero ? hero.offsetHeight : window.innerHeight * 1.6;
+        const scrollY = window.scrollY || window.pageYOffset;
+        if (scrollY >= heroHeight - 40) {
+          videoRef.current.volume = 0.5;
+        } else {
+          videoRef.current.volume = 1;
+        }
+        setMuted(false);
+        videoRef.current.play().catch(() => {});
+      }
     }
   };
 
   return (
-    <>
+    <div ref={heroRef} id="hero-wrapper">
       {/* ── Pure full-screen video, zero overlaid text ── */}
       <section
         style={{
@@ -41,7 +147,6 @@ export const Hero: React.FC<HeroProps> = ({ onContact, onServices }) => {
           ref={videoRef}
           autoPlay
           loop
-          muted
           playsInline
           style={{
             position: 'absolute',
@@ -71,23 +176,37 @@ export const Hero: React.FC<HeroProps> = ({ onContact, onServices }) => {
         {/* Only UI control: mute toggle, bottom-right */}
         <button
           onClick={toggleMute}
-          aria-label={muted ? 'Unmute video' : 'Mute video'}
+          aria-label={muted ? 'Unmute video sound' : 'Mute video sound'}
           style={{
             position: 'absolute',
             bottom: 20,
             right: 20,
             zIndex: 2,
-            background: 'rgba(0,0,0,0.45)',
-            border: '1px solid rgba(255,255,255,0.15)',
+            background: muted ? 'rgba(0,0,0,0.5)' : 'rgba(255,64,21,0.25)',
+            border: muted ? '1px solid rgba(255,255,255,0.18)' : '1px solid #FF4015',
             borderRadius: 4,
             cursor: 'pointer',
             fontFamily: 'var(--font-mono)',
-            fontSize: '0.6rem',
+            fontSize: '0.62rem',
             letterSpacing: '0.12em',
-            color: '#aaa',
-            padding: '6px 10px',
+            color: muted ? '#aaa' : '#fff',
+            padding: '6px 12px',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            backdropFilter: 'blur(8px)',
+            transition: 'background 0.25s, border-color 0.25s, color 0.25s',
           }}
         >
+          <span
+            style={{
+              width: 6,
+              height: 6,
+              borderRadius: '50%',
+              background: muted ? '#666' : '#FF4015',
+              boxShadow: muted ? 'none' : '0 0 8px #FF4015',
+            }}
+          />
           {muted ? 'SOUND OFF' : 'SOUND ON'}
         </button>
       </section>
@@ -220,6 +339,6 @@ export const Hero: React.FC<HeroProps> = ({ onContact, onServices }) => {
           </div>
         </div>
       </section>
-    </>
+    </div>
   );
 };
