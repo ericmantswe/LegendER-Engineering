@@ -154,58 +154,54 @@ export const Hero: React.FC<HeroProps> = ({ onContact, onServices }) => {
           <source src="/Papers_covering_logo_exploding_o…_20261019173522.mp4" type="video/mp4" />
         </video>
 
-        {/* Browser autoplay notification badge if unmuted autoplay was blocked */}
+        {/* Speaker icon — shown only when autoplay was blocked */}
         {showUnmuteHint && (
-          <div
+          <button
+            type="button"
+            aria-label="Enable sound"
             onClick={e => {
               e.stopPropagation();
               unlockAudio();
             }}
             style={{
               position: 'absolute',
-              bottom: 28,
-              left: '50%',
-              transform: 'translateX(-50%)',
+              bottom: 24,
+              right: 24,
               zIndex: 30,
-              background: 'rgba(15, 15, 15, 0.85)',
-              backdropFilter: 'blur(12px)',
-              border: '1px solid rgba(255, 64, 21, 0.5)',
-              borderRadius: 100,
-              padding: '10px 22px',
-              color: '#fff',
-              fontFamily: 'var(--font-body)',
-              fontSize: '0.78rem',
-              fontWeight: 600,
-              letterSpacing: '0.08em',
-              textTransform: 'uppercase',
-              display: 'inline-flex',
+              width: 44,
+              height: 44,
+              borderRadius: '50%',
+              background: 'rgba(255,255,255,0.06)',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255,255,255,0.2)',
+              display: 'flex',
               alignItems: 'center',
-              gap: 10,
+              justifyContent: 'center',
               cursor: 'pointer',
-              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.6), 0 0 16px rgba(255, 64, 21, 0.25)',
-              transition: 'transform 0.2s, background 0.2s',
+              color: 'rgba(255,255,255,0.75)',
+              transition: 'background 0.2s, border-color 0.2s, color 0.2s, transform 0.15s',
+              padding: 0,
             }}
             onMouseEnter={e => {
-              e.currentTarget.style.transform = 'translateX(-50%) scale(1.03)';
-              e.currentTarget.style.background = 'rgba(25, 25, 25, 0.95)';
+              e.currentTarget.style.background = 'rgba(255,255,255,0.14)';
+              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.45)';
+              e.currentTarget.style.color = '#fff';
+              e.currentTarget.style.transform = 'scale(1.08)';
             }}
             onMouseLeave={e => {
-              e.currentTarget.style.transform = 'translateX(-50%) scale(1)';
-              e.currentTarget.style.background = 'rgba(15, 15, 15, 0.85)';
+              e.currentTarget.style.background = 'rgba(255,255,255,0.06)';
+              e.currentTarget.style.borderColor = 'rgba(255,255,255,0.2)';
+              e.currentTarget.style.color = 'rgba(255,255,255,0.75)';
+              e.currentTarget.style.transform = 'scale(1)';
             }}
           >
-            <span
-              style={{
-                width: 8,
-                height: 8,
-                borderRadius: '50%',
-                background: '#FF4015',
-                boxShadow: '0 0 8px #FF4015',
-                display: 'inline-block',
-              }}
-            />
-            <span>Tap Anywhere For Sound</span>
-          </div>
+            {/* Speaker muted icon */}
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5" />
+              <line x1="23" y1="9" x2="17" y2="15" />
+              <line x1="17" y1="9" x2="23" y2="15" />
+            </svg>
+          </button>
         )}
 
         {/* Subtle bottom fade so the next section blends in */}
