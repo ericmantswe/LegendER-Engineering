@@ -10,6 +10,9 @@ export const Hero: React.FC<HeroProps> = ({ onContact, onServices }) => {
   const heroRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [showUnmuteHint, setShowUnmuteHint] = useState(false);
+  const isAudioActiveRef = useRef(false);
+  const cleanupListenersRef = useRef<(() => void) | null>(null);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth <= 680);
@@ -18,75 +21,105 @@ export const Hero: React.FC<HeroProps> = ({ onContact, onServices }) => {
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  const getScrollVolume = (scrollY: number) => {
+    const vh = window.innerHeight;
+    // Sound is 100% on reload / top of page (scrollY <= 0)
+    // Smooth acoustic cosine fade-out to 0 as user scrolls past the hero video
+    const fadeStart = 0;
+    const fadeEnd = vh * 0.88;
+
+    if (scrollY <= fadeStart) return 1;
+    if (scrollY >= fadeEnd) return 0;
+
+    const progress = (scrollY - fadeStart) / (fadeEnd - fadeStart);
+    const vol = 0.5 * (1 + Math.cos(progress * Math.PI));
+    return Math.max(0, Math.min(1, Math.round(vol * 100) / 100));
+  };
+
+  const unlockAudio = () => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const scrollY = window.scrollY || window.pageYOffset;
+    const vol = getScrollVolume(scrollY);
+    video.volume = vol;
+    video.muted = vol <= 0.01;
+
+    const playPromise = video.play();
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => {
+          if (vol > 0.01) {
+            video.muted = false;
+          }
+          isAudioActiveRef.current = true;
+          setShowUnmuteHint(false);
+          // Audio unlocked and playing!
+          if (cleanupListenersRef.current) {
+            cleanupListenersRef.current();
+            cleanupListenersRef.current = null;
+          }
+        })
+        .catch(() => {
+          // Keep waiting for user gesture
+        });
+    }
+  };
+
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
     const updateAudioFade = () => {
-      const hero = heroRef.current;
-      if (!hero) return;
-
-      const heroHeight = hero.offsetHeight || window.innerHeight * 1.6;
       const scrollY = window.scrollY || window.pageYOffset;
+      const vol = getScrollVolume(scrollY);
+      video.volume = vol;
 
-      // Start fading as the user scrolls down through the video
-      const fadeStart = window.innerHeight * 0.25;
-      // Complete fade-out to 0 when user reaches the end of the hero section
-      const fadeEnd = heroHeight - 40;
-
-      if (scrollY <= fadeStart) {
-        video.volume = 1;
-        video.muted = false;
-      } else if (scrollY >= fadeEnd) {
-        video.volume = 0;
+      if (vol <= 0.01) {
         video.muted = true;
-      } else {
-        // Smooth cosine acoustic fade from 1 down to 0
-        const progress = (scrollY - fadeStart) / (fadeEnd - fadeStart);
-        const vol = Math.max(0, Math.min(1, 0.5 * (1 + Math.cos(progress * Math.PI))));
-        video.volume = Math.round(vol * 100) / 100;
-        video.muted = vol <= 0.01;
+      } else if (isAudioActiveRef.current) {
+        video.muted = false;
       }
     };
 
-    // Attempt sound playback immediately (always on by default)
+    // 1. Attempt unmuted playback immediately on page reload
     video.muted = false;
-    video.volume = 1;
-    const playPromise = video.play();
+    video.volume = getScrollVolume(window.scrollY || 0);
+    const initialPlay = video.play();
 
-    if (playPromise !== undefined) {
-      playPromise
+    if (initialPlay !== undefined) {
+      initialPlay
         .then(() => {
+          // Playback with sound succeeded on reload!
+          isAudioActiveRef.current = true;
+          setShowUnmuteHint(false);
           updateAudioFade();
         })
         .catch(() => {
-          // If browser policy requires user interaction before unmuting,
-          // play muted initially so visual presentation is uninterrupted:
+          // Browser autoplay policy requires user interaction first:
+          // Start video muted so visual playback starts smoothly
           video.muted = true;
           video.play().catch(() => {});
+          setShowUnmuteHint(true);
 
-          // Immediately unmute upon the very first user interaction (scroll, click, tap)
-          const enableAudio = () => {
-            if (videoRef.current) {
-              videoRef.current.muted = false;
-              updateAudioFade();
-            }
-            window.removeEventListener('click', enableAudio);
-            window.removeEventListener('touchstart', enableAudio);
-            window.removeEventListener('scroll', enableAudio);
-            window.removeEventListener('keydown', enableAudio);
+          const events = ['pointerdown', 'mousedown', 'touchstart', 'keydown', 'wheel', 'scroll'];
+          const handleInteraction = () => {
+            unlockAudio();
           };
 
-          window.addEventListener('click', enableAudio, { once: true });
-          window.addEventListener('touchstart', enableAudio, { once: true });
-          window.addEventListener('scroll', enableAudio, { once: true });
-          window.addEventListener('keydown', enableAudio, { once: true });
+          events.forEach(evt => window.addEventListener(evt, handleInteraction, { passive: true }));
+          cleanupListenersRef.current = () => {
+            events.forEach(evt => window.removeEventListener(evt, handleInteraction));
+          };
         });
     }
 
     window.addEventListener('scroll', updateAudioFade, { passive: true });
     return () => {
       window.removeEventListener('scroll', updateAudioFade);
+      if (cleanupListenersRef.current) {
+        cleanupListenersRef.current();
+      }
     };
   }, []);
 
@@ -94,12 +127,14 @@ export const Hero: React.FC<HeroProps> = ({ onContact, onServices }) => {
     <div ref={heroRef} id="hero-wrapper">
       {/* ── Pure full-screen video, zero overlaid text ── */}
       <section
+        onClick={unlockAudio}
         style={{
           position: 'relative',
           height: '100svh',
           minHeight: 440,
           overflow: 'hidden',
           background: '#000',
+          cursor: showUnmuteHint ? 'pointer' : 'default',
         }}
       >
         <video
@@ -119,6 +154,60 @@ export const Hero: React.FC<HeroProps> = ({ onContact, onServices }) => {
           <source src="/Papers_covering_logo_exploding_o…_20261019173522.mp4" type="video/mp4" />
         </video>
 
+        {/* Browser autoplay notification badge if unmuted autoplay was blocked */}
+        {showUnmuteHint && (
+          <div
+            onClick={e => {
+              e.stopPropagation();
+              unlockAudio();
+            }}
+            style={{
+              position: 'absolute',
+              bottom: 28,
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 30,
+              background: 'rgba(15, 15, 15, 0.85)',
+              backdropFilter: 'blur(12px)',
+              border: '1px solid rgba(255, 64, 21, 0.5)',
+              borderRadius: 100,
+              padding: '10px 22px',
+              color: '#fff',
+              fontFamily: 'var(--font-body)',
+              fontSize: '0.78rem',
+              fontWeight: 600,
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 10,
+              cursor: 'pointer',
+              boxShadow: '0 8px 24px rgba(0, 0, 0, 0.6), 0 0 16px rgba(255, 64, 21, 0.25)',
+              transition: 'transform 0.2s, background 0.2s',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.transform = 'translateX(-50%) scale(1.03)';
+              e.currentTarget.style.background = 'rgba(25, 25, 25, 0.95)';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.transform = 'translateX(-50%) scale(1)';
+              e.currentTarget.style.background = 'rgba(15, 15, 15, 0.85)';
+            }}
+          >
+            <span
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: '50%',
+                background: '#FF4015',
+                boxShadow: '0 0 8px #FF4015',
+                display: 'inline-block',
+              }}
+            />
+            <span>Tap Anywhere For Sound</span>
+          </div>
+        )}
+
         {/* Subtle bottom fade so the next section blends in */}
         <div
           style={{
@@ -131,7 +220,6 @@ export const Hero: React.FC<HeroProps> = ({ onContact, onServices }) => {
             pointerEvents: 'none',
           }}
         />
-
       </section>
 
       {/* ── Headline + CTAs BELOW the video ── */}
