@@ -1,0 +1,6 @@
+{
+  "name": "Mantswe Engineering Solutions",
+  "description": "Practical engineering solutions, industrial automation, PLC control, embedded systems, and CAD product development founded by Eric Obakeng Mantswe in Botswana.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
