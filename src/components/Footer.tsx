@@ -130,6 +130,39 @@ export const Footer: React.FC<FooterProps> = ({ onContact }) => {
             >
               Let's Talk
             </button>
+            <a
+              href="https://wa.me/26772326496"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                background: 'rgba(37, 211, 102, 0.15)',
+                border: '1px solid rgba(37, 211, 102, 0.4)',
+                borderRadius: 100,
+                cursor: 'pointer',
+                fontFamily: 'var(--font-body)',
+                fontSize: '0.72rem',
+                fontWeight: 600,
+                letterSpacing: '0.08em',
+                textTransform: 'uppercase',
+                color: '#25D366',
+                padding: '7px 18px',
+                textDecoration: 'none',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: 6,
+                transition: 'background 0.2s, border-color 0.2s',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = 'rgba(37, 211, 102, 0.25)';
+                e.currentTarget.style.borderColor = '#25D366';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'rgba(37, 211, 102, 0.15)';
+                e.currentTarget.style.borderColor = 'rgba(37, 211, 102, 0.4)';
+              }}
+            >
+              WhatsApp
+            </a>
           </div>
         </div>
 

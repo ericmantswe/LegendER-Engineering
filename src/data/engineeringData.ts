@@ -14,6 +14,8 @@ export const BRAND_DATA = {
   contactPlaceholder: {
     email: 'ericmantswe3@gmail.com',
     phone: '+267 72 326 496',
+    whatsapp: '+267 72 326 496',
+    whatsappUrl: 'https://wa.me/26772326496',
     location: 'Palapye, Botswana',
     workingHours: 'Mon – Fri: 08:00 – 17:00 (CAT)',
   },

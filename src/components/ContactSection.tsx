@@ -161,10 +161,15 @@ Details: ${submittedData.description}`;
                   </div>
 
                   <div>
-                    <span className="text-slate-400 uppercase text-[9px] block">PHONE:</span>
-                    <p className="text-white font-bold">
+                    <span className="text-slate-400 uppercase text-[9px] block">PHONE & WHATSAPP:</span>
+                    <a
+                      href="https://wa.me/26772326496"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-white font-bold hover:text-[#25D366] transition-colors"
+                    >
                       {BRAND_DATA.contactPlaceholder.phone}
-                    </p>
+                    </a>
                   </div>
 
                   <div>

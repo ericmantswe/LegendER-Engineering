@@ -23,6 +23,7 @@ export const Contact: React.FC<ContactProps> = ({ prefilledService }) => {
     message: '',
   });
   const [sent, setSent] = useState(false);
+  const [whatsappUrl, setWhatsappUrl] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [focused, setFocused] = useState<string | null>(null);
 
@@ -45,7 +46,17 @@ export const Contact: React.FC<ContactProps> = ({ prefilledService }) => {
     const errs = validate();
     if (Object.keys(errs).length) { setErrors(errs); return; }
     setErrors({});
+
+    const messageText = `*Project Enquiry - legendER engineering*
+• *Name:* ${form.name.trim()}
+• *Email:* ${form.email.trim()}
+• *Service Area:* ${form.service}
+• *Project Details:* ${form.message.trim()}`;
+
+    const url = `https://wa.me/26772326496?text=${encodeURIComponent(messageText)}`;
+    setWhatsappUrl(url);
     setSent(true);
+    window.open(url, '_blank', 'noopener,noreferrer');
   };
 
   const inputStyle = (name: string): React.CSSProperties => ({
@@ -165,14 +176,20 @@ export const Contact: React.FC<ContactProps> = ({ prefilledService }) => {
           <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
             {[
               {
+                label: 'WhatsApp (Direct)',
+                value: `${BRAND_DATA.contactPlaceholder.phone} · Chat Now`,
+                href: 'https://wa.me/26772326496',
+                isWhatsApp: true,
+              },
+              {
+                label: 'Phone / Call',
+                value: BRAND_DATA.contactPlaceholder.phone,
+                href: `tel:${BRAND_DATA.contactPlaceholder.phone.replace(/\s+/g, '')}`,
+              },
+              {
                 label: 'Email',
                 value: BRAND_DATA.contactPlaceholder.email,
                 href: `mailto:${BRAND_DATA.contactPlaceholder.email}`,
-              },
-              {
-                label: 'Phone',
-                value: BRAND_DATA.contactPlaceholder.phone,
-                href: `tel:${BRAND_DATA.contactPlaceholder.phone.replace(/\s+/g, '')}`,
               },
               {
                 label: 'Location',
@@ -200,24 +217,33 @@ export const Contact: React.FC<ContactProps> = ({ prefilledService }) => {
                     fontSize: '0.62rem',
                     letterSpacing: '0.18em',
                     textTransform: 'uppercase',
-                    color: '#bbb',
+                    color: item.isWhatsApp ? '#128C7E' : '#bbb',
                     fontWeight: 600,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 6,
                   }}
                 >
+                  {item.isWhatsApp && (
+                    <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#25D366', display: 'inline-block' }} />
+                  )}
                   {item.label}
                 </span>
                 {item.href ? (
                   <a
                     href={item.href}
+                    target={item.href.startsWith('http') ? '_blank' : undefined}
+                    rel={item.href.startsWith('http') ? 'noopener noreferrer' : undefined}
                     style={{
                       fontFamily: 'var(--font-body)',
                       fontSize: '0.92rem',
-                      color: '#111',
+                      color: item.isWhatsApp ? '#075E54' : '#111',
+                      fontWeight: item.isWhatsApp ? 600 : 400,
                       textDecoration: 'none',
                       transition: 'color 0.2s',
                     }}
-                    onMouseEnter={e => (e.currentTarget.style.color = '#777')}
-                    onMouseLeave={e => (e.currentTarget.style.color = '#111')}
+                    onMouseEnter={e => (e.currentTarget.style.color = '#25D366')}
+                    onMouseLeave={e => (e.currentTarget.style.color = item.isWhatsApp ? '#075E54' : '#111')}
                   >
                     {item.value}
                   </a>
@@ -235,6 +261,42 @@ export const Contact: React.FC<ContactProps> = ({ prefilledService }) => {
               </div>
             ))}
           </div>
+
+          <a
+            href="https://wa.me/26772326496"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 10,
+              marginTop: 28,
+              padding: '14px 22px',
+              background: '#25D366',
+              color: '#fff',
+              textDecoration: 'none',
+              fontFamily: 'var(--font-body)',
+              fontWeight: 600,
+              fontSize: '0.85rem',
+              letterSpacing: '0.04em',
+              borderRadius: 4,
+              boxShadow: '0 4px 14px rgba(37, 211, 102, 0.25)',
+              transition: 'background 0.2s, transform 0.2s',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.background = '#20ba5a';
+              e.currentTarget.style.transform = 'translateY(-1px)';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.background = '#25D366';
+              e.currentTarget.style.transform = 'none';
+            }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.888 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.456 5.711 1.457h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+            </svg>
+            Chat Directly on WhatsApp
+          </a>
         </div>
 
         {/* Right — form */}
@@ -256,20 +318,23 @@ export const Contact: React.FC<ContactProps> = ({ prefilledService }) => {
                 gap: 16,
               }}
             >
-              {/* Checkmark */}
+              {/* WhatsApp Icon Box */}
               <div
                 style={{
                   width: 56,
                   height: 56,
-                  border: '1px solid #111',
+                  borderRadius: 6,
+                  background: 'rgba(37, 211, 102, 0.12)',
+                  border: '1px solid #25D366',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   marginBottom: 8,
+                  color: '#25D366',
                 }}
               >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                  <polyline points="4,12 10,18 20,6" stroke="#111" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.888 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.456 5.711 1.457h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
                 </svg>
               </div>
               <h3
@@ -283,19 +348,60 @@ export const Contact: React.FC<ContactProps> = ({ prefilledService }) => {
                   margin: 0,
                 }}
               >
-                Message Received
+                Connecting to WhatsApp
               </h3>
               <p
                 style={{
                   fontFamily: 'var(--font-body)',
-                  color: '#777',
-                  fontSize: '0.9rem',
+                  color: '#666',
+                  fontSize: '0.92rem',
                   lineHeight: 1.65,
                   margin: 0,
+                  maxWidth: 420,
                 }}
               >
-                We'll review your enquiry and get back to you within 24–48 hours.
+                We've formatted your enquiry and routed it directly to WhatsApp (<strong>{BRAND_DATA.contactPlaceholder.phone}</strong>). If the chat did not open automatically, tap below:
               </p>
+
+              <div style={{ display: 'flex', gap: 12, marginTop: 8, flexWrap: 'wrap' }}>
+                <a
+                  href={whatsappUrl || 'https://wa.me/26772326496'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    background: '#25D366',
+                    color: '#fff',
+                    textDecoration: 'none',
+                    fontFamily: 'var(--font-body)',
+                    fontWeight: 600,
+                    fontSize: '0.85rem',
+                    padding: '12px 22px',
+                    borderRadius: 4,
+                  }}
+                >
+                  Open WhatsApp Chat →
+                </a>
+                <button
+                  type="button"
+                  onClick={() => setSent(false)}
+                  style={{
+                    background: 'transparent',
+                    border: '1px solid rgba(0,0,0,0.2)',
+                    cursor: 'pointer',
+                    fontFamily: 'var(--font-body)',
+                    fontWeight: 500,
+                    fontSize: '0.82rem',
+                    color: '#555',
+                    padding: '12px 18px',
+                    borderRadius: 4,
+                  }}
+                >
+                  Send Another Message
+                </button>
+              </div>
             </div>
           ) : (
             <form
@@ -393,29 +499,62 @@ export const Contact: React.FC<ContactProps> = ({ prefilledService }) => {
                 )}
               </div>
 
-              <button
-                id="contact-submit"
-                type="submit"
-                style={{
-                  background: '#111',
-                  border: '1px solid #111',
-                  borderRadius: 0,
-                  cursor: 'pointer',
-                  fontFamily: 'var(--font-body)',
-                  fontWeight: 600,
-                  fontSize: '0.8rem',
-                  letterSpacing: '0.1em',
-                  textTransform: 'uppercase',
-                  color: '#fff',
-                  padding: '16px 32px',
-                  alignSelf: 'flex-start',
-                  transition: 'opacity 0.2s',
-                }}
-                onMouseEnter={e => (e.currentTarget.style.opacity = '0.8')}
-                onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
-              >
-                Send Enquiry →
-              </button>
+              <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center' }}>
+                <button
+                  id="contact-submit"
+                  type="submit"
+                  style={{
+                    background: '#111',
+                    border: '1px solid #111',
+                    borderRadius: 4,
+                    cursor: 'pointer',
+                    fontFamily: 'var(--font-body)',
+                    fontWeight: 600,
+                    fontSize: '0.8rem',
+                    letterSpacing: '0.1em',
+                    textTransform: 'uppercase',
+                    color: '#fff',
+                    padding: '16px 28px',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    transition: 'opacity 0.2s',
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.opacity = '0.85')}
+                  onMouseLeave={e => (e.currentTarget.style.opacity = '1')}
+                >
+                  Send Enquiry via WhatsApp →
+                </button>
+
+                <a
+                  href="https://wa.me/26772326496"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    padding: '15px 22px',
+                    background: 'rgba(37, 211, 102, 0.12)',
+                    border: '1px solid rgba(37, 211, 102, 0.4)',
+                    color: '#128C7E',
+                    textDecoration: 'none',
+                    fontFamily: 'var(--font-body)',
+                    fontWeight: 600,
+                    fontSize: '0.8rem',
+                    borderRadius: 4,
+                    letterSpacing: '0.04em',
+                    transition: 'background 0.2s',
+                  }}
+                  onMouseEnter={e => (e.currentTarget.style.background = 'rgba(37, 211, 102, 0.2)')}
+                  onMouseLeave={e => (e.currentTarget.style.background = 'rgba(37, 211, 102, 0.12)')}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.888 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L0 24l6.335-1.662c1.746.953 3.71 1.456 5.711 1.457h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                  </svg>
+                  Direct WhatsApp Chat
+                </a>
+              </div>
             </form>
           )}
         </div>
