@@ -134,39 +134,33 @@ export const Footer: React.FC<FooterProps> = ({ onContact }) => {
               href="https://wa.me/26772326496"
               target="_blank"
               rel="noopener noreferrer"
+              aria-label="WhatsApp"
+              title="Chat on WhatsApp"
               style={{
-                background: 'rgba(37, 211, 102, 0.15)',
-                border: '1px solid rgba(37, 211, 102, 0.4)',
-                borderRadius: 100,
-                cursor: 'pointer',
-                fontFamily: 'var(--font-body)',
-                fontSize: '0.72rem',
-                fontWeight: 600,
-                letterSpacing: '0.08em',
-                textTransform: 'uppercase',
-                color: '#25D366',
-                padding: '7px 18px',
-                textDecoration: 'none',
                 display: 'inline-flex',
                 alignItems: 'center',
-                gap: 6,
-                transition: 'background 0.2s, border-color 0.2s',
+                justifyContent: 'center',
+                background: 'transparent',
+                border: 'none',
+                padding: 0,
+                cursor: 'pointer',
+                transition: 'transform 0.2s, opacity 0.2s',
+                opacity: 0.85,
               }}
               onMouseEnter={e => {
-                e.currentTarget.style.background = 'rgba(37, 211, 102, 0.25)';
-                e.currentTarget.style.borderColor = '#25D366';
+                e.currentTarget.style.transform = 'scale(1.12)';
+                e.currentTarget.style.opacity = '1';
               }}
               onMouseLeave={e => {
-                e.currentTarget.style.background = 'rgba(37, 211, 102, 0.15)';
-                e.currentTarget.style.borderColor = 'rgba(37, 211, 102, 0.4)';
+                e.currentTarget.style.transform = 'scale(1)';
+                e.currentTarget.style.opacity = '0.85';
               }}
             >
               <img
                 src="/whatsapp.png"
                 alt="WhatsApp"
-                style={{ width: 15, height: 15, objectFit: 'contain', display: 'block' }}
+                style={{ width: 26, height: 26, objectFit: 'contain', display: 'block' }}
               />
-              WhatsApp
             </a>
           </div>
         </div>
