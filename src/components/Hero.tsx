@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import FlyingButton from './FlyingButton';
 
 interface HeroProps {
@@ -9,6 +9,14 @@ interface HeroProps {
 export const Hero: React.FC<HeroProps> = ({ onContact, onServices }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [muted, setMuted] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 680);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const toggleMute = () => {
     if (videoRef.current) {
@@ -23,8 +31,8 @@ export const Hero: React.FC<HeroProps> = ({ onContact, onServices }) => {
       <section
         style={{
           position: 'relative',
-          height: '100vh',
-          minHeight: 500,
+          height: '100svh',
+          minHeight: 440,
           overflow: 'hidden',
           background: '#000',
         }}
@@ -90,8 +98,9 @@ export const Hero: React.FC<HeroProps> = ({ onContact, onServices }) => {
           position: 'relative',
           zIndex: 10,
           background: 'var(--color-bg)',
-          padding: 'clamp(56px, 8vw, 88px) 24px',
+          padding: 'clamp(44px, 7vw, 88px) clamp(16px, 4vw, 24px)',
           borderBottom: '1px solid var(--color-border)',
+          overflow: 'hidden',
         }}
       >
         <div style={{ maxWidth: 1100, margin: '0 auto', position: 'relative', zIndex: 20 }}>
@@ -103,14 +112,14 @@ export const Hero: React.FC<HeroProps> = ({ onContact, onServices }) => {
             style={{
               fontFamily: 'var(--font-display)',
               fontWeight: 900,
-              fontSize: 'clamp(2.2rem, 6vw, 5rem)',
+              fontSize: 'clamp(2rem, 7vw, 5rem)',
               lineHeight: 1.05,
               letterSpacing: '0.04em',
               wordSpacing: '0.1em',
               textTransform: 'uppercase',
               color: '#fff',
               maxWidth: 820,
-              marginBottom: 24,
+              marginBottom: 20,
             }}
           >
             We Engineer Solutions.<br />You Grow Your Business.
@@ -119,10 +128,10 @@ export const Hero: React.FC<HeroProps> = ({ onContact, onServices }) => {
           <p
             style={{
               fontFamily: 'var(--font-body)',
-              fontSize: 'clamp(1rem, 2.2vw, 1.15rem)',
+              fontSize: 'clamp(0.95rem, 2.2vw, 1.15rem)',
               color: '#888',
-              maxWidth: 500,
-              marginBottom: 36,
+              maxWidth: 520,
+              marginBottom: isMobile ? 24 : 36,
               lineHeight: 1.7,
             }}
           >
@@ -132,9 +141,9 @@ export const Hero: React.FC<HeroProps> = ({ onContact, onServices }) => {
           <div
             style={{
               display: 'flex',
-              gap: 20,
-              alignItems: 'flex-end',
-              flexWrap: 'wrap',
+              gap: isMobile ? 14 : 20,
+              alignItems: isMobile ? 'stretch' : 'flex-end',
+              flexDirection: isMobile ? 'column' : 'row',
               position: 'relative',
               zIndex: 35,
             }}
@@ -143,26 +152,26 @@ export const Hero: React.FC<HeroProps> = ({ onContact, onServices }) => {
               style={{
                 position: 'relative',
                 zIndex: 35,
-                width: 'clamp(360px, 92vw, 760px)',
-                height: 520,
-                marginTop: -476,
+                width: isMobile ? '100%' : 'min(100%, 760px)',
+                height: isMobile ? 360 : 520,
+                marginTop: isMobile ? -316 : -476,
                 maxWidth: '100%',
               }}
             >
               <FlyingButton
                 id="hero-cta-contact"
                 theme="dark"
-                size="medium"
+                size={isMobile ? 'small' : 'medium'}
                 align="left"
                 alignOffset={0}
-                altitude={270}
-                hoverTime={2.8}
+                altitude={isMobile ? 180 : 270}
+                hoverTime={isMobile ? 2.4 : 2.8}
                 jets={2}
                 thrusters
                 trigger="hover"
-                carryCursor
-                smoke={1.3}
-                turbulence={1.2}
+                carryCursor={!isMobile}
+                smoke={isMobile ? 1.0 : 1.3}
+                turbulence={isMobile ? 1.0 : 1.2}
                 wobble={1}
                 ramp={false}
                 radius={4}
@@ -175,7 +184,7 @@ export const Hero: React.FC<HeroProps> = ({ onContact, onServices }) => {
                 Discuss Your Project →
               </FlyingButton>
             </div>
-            <div style={{ paddingBottom: 6 }}>
+            <div style={{ paddingBottom: isMobile ? 0 : 6, width: isMobile ? '100%' : 'auto' }}>
               <button
                 id="hero-cta-services"
                 onClick={onServices}
@@ -192,6 +201,8 @@ export const Hero: React.FC<HeroProps> = ({ onContact, onServices }) => {
                   padding: '0 28px',
                   display: 'inline-flex',
                   alignItems: 'center',
+                  justifyContent: 'center',
+                  width: isMobile ? '100%' : 'auto',
                   transition: 'border-color 0.2s, color 0.2s',
                 }}
                 onMouseEnter={e => {

@@ -15,7 +15,7 @@ export const AboutFounder: React.FC = () => {
         style={{
           maxWidth: 1200,
           margin: '0 auto',
-          padding: '0 32px',
+          padding: '0 clamp(16px, 4vw, 32px)',
           borderBottom: '1px solid var(--color-border-light)',
           paddingTop: 'clamp(56px, 8vw, 88px)',
           paddingBottom: 48,
@@ -56,7 +56,7 @@ export const AboutFounder: React.FC = () => {
         style={{
           maxWidth: 1200,
           margin: '0 auto',
-          padding: '0 32px',
+          padding: '0 clamp(16px, 4vw, 32px)',
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
           borderBottom: '1px solid var(--color-border-light)',
@@ -240,8 +240,8 @@ export const AboutFounder: React.FC = () => {
       <style>{`
         @media (max-width: 760px) {
           .about-grid { grid-template-columns: 1fr !important; }
-          .about-left { padding-right: 0 !important; border-right: none !important; border-bottom: 1px solid var(--color-border-light); }
-          .about-right { padding-left: 0 !important; }
+          .about-left { padding-right: 0 !important; padding-top: 32px !important; padding-bottom: 32px !important; border-right: none !important; border-bottom: 1px solid var(--color-border-light); }
+          .about-right { padding-left: 0 !important; padding-top: 32px !important; padding-bottom: 32px !important; }
         }
       `}</style>
     </section>

@@ -88,7 +88,7 @@ export const Contact: React.FC<ContactProps> = ({ prefilledService }) => {
         style={{
           maxWidth: 1200,
           margin: '0 auto',
-          padding: '0 32px',
+          padding: '0 clamp(16px, 4vw, 32px)',
           borderBottom: '1px solid var(--color-border-light)',
           paddingTop: 'clamp(56px, 8vw, 88px)',
           paddingBottom: 48,
@@ -133,7 +133,7 @@ export const Contact: React.FC<ContactProps> = ({ prefilledService }) => {
         style={{
           maxWidth: 1200,
           margin: '0 auto',
-          padding: '0 32px',
+          padding: '0 clamp(16px, 4vw, 32px)',
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
           paddingBottom: 'clamp(56px, 8vw, 88px)',
@@ -424,8 +424,9 @@ export const Contact: React.FC<ContactProps> = ({ prefilledService }) => {
       <style>{`
         @media (max-width: 760px) {
           .contact-grid { grid-template-columns: 1fr !important; }
-          .contact-left { padding-right: 0 !important; border-right: none !important; border-bottom: 1px solid var(--color-border-light); }
-          .contact-right { padding-left: 0 !important; }
+          .contact-left { padding-right: 0 !important; border-right: none !important; border-bottom: 1px solid var(--color-border-light); padding-top: 24px !important; padding-bottom: 24px !important; }
+          .contact-right { padding-left: 0 !important; padding-top: 24px !important; }
+          #contact-submit { width: 100% !important; justify-content: center !important; text-align: center !important; }
         }
         #contact input::placeholder,
         #contact textarea::placeholder {

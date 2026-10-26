@@ -19,7 +19,7 @@ export const Footer: React.FC<FooterProps> = ({ onContact }) => {
         style={{
           maxWidth: 1200,
           margin: '0 auto',
-          padding: '0 32px',
+          padding: '0 clamp(16px, 4vw, 32px)',
         }}
       >
         {/* Top row */}

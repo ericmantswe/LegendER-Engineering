@@ -94,10 +94,11 @@ export const Services: React.FC<ServicesProps> = ({ onInquire }) => {
     >
       {/* Section header — spans full width with dividers */}
       <div
+        className="services-header"
         style={{
           maxWidth: 1200,
           margin: '0 auto',
-          padding: '0 32px',
+          padding: '0 clamp(16px, 4vw, 32px)',
           display: 'flex',
           alignItems: 'flex-end',
           justifyContent: 'space-between',
@@ -156,7 +157,7 @@ export const Services: React.FC<ServicesProps> = ({ onInquire }) => {
         style={{
           maxWidth: 1200,
           margin: '0 auto',
-          padding: '0 32px',
+          padding: '0 clamp(16px, 4vw, 32px)',
           display: 'grid',
           gridTemplateColumns: 'repeat(2, 1fr)',
           gap: 0,
@@ -169,6 +170,7 @@ export const Services: React.FC<ServicesProps> = ({ onInquire }) => {
           return (
             <div
               key={service.id}
+              className="service-card"
               onMouseEnter={() => setHovered(service.id)}
               onMouseLeave={() => setHovered(null)}
               onClick={() => onInquire(service.title)}
@@ -356,8 +358,25 @@ export const Services: React.FC<ServicesProps> = ({ onInquire }) => {
 
       <style>{`
         @media (max-width: 680px) {
+          .services-header {
+            flex-direction: column !important;
+            align-items: flex-start !important;
+            gap: 16px !important;
+            padding-bottom: 28px !important;
+          }
           .services-grid { grid-template-columns: 1fr !important; }
-          .services-desc-hide { display: none; }
+          .services-desc-hide {
+            display: block !important;
+            text-align: left !important;
+            max-width: 100% !important;
+            padding-bottom: 0 !important;
+          }
+          .service-card {
+            padding: 32px 18px !important;
+            min-height: 380px !important;
+            border-right: none !important;
+            border-bottom: 1px solid var(--color-border-light) !important;
+          }
         }
         @media (hover: none) {
           .service-img-element {

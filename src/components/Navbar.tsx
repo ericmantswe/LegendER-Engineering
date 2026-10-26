@@ -39,7 +39,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onContact }) => {
         backdropFilter: scrolled ? 'blur(14px)' : 'none',
       }}
     >
-      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 32px' }}>
+      <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 clamp(16px, 4vw, 32px)' }}>
         <nav style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: 60 }}>
           {/* Logo */}
           <a
